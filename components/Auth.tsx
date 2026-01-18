@@ -8,7 +8,9 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile,
   signOut,
-  sendEmailVerification
+  sendEmailVerification,
+  googleProvider,
+  signInWithPopup
 } from '../firebase';
 
 interface AuthProps {
@@ -40,6 +42,29 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     }
     setError(null);
   }, [view]);
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      onLogin({
+        name: user.displayName || 'Google User',
+        email: user.email || '',
+        type: 'PUBLIC',
+        photoUrl: user.photoURL || undefined
+      });
+    } catch (err: any) {
+      console.error("Google Auth Error:", err);
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError(err.message || "Failed to sign in with Google");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -298,6 +323,27 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
               )}
             </button>
           </form>
+
+          {/* Separator */}
+          {view !== AuthView.ADMIN && (
+            <div className="relative flex items-center gap-4 py-2">
+              <div className="flex-1 h-px bg-slate-800"></div>
+              <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">OR</span>
+              <div className="flex-1 h-px bg-slate-800"></div>
+            </div>
+          )}
+
+          {/* Google Sign In */}
+          {view !== AuthView.ADMIN && (
+            <button 
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-4 py-4 bg-[#0D1424] border border-slate-800 text-white font-black text-xs uppercase tracking-widest rounded-2xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50"
+            >
+              <img src="https://i.ibb.co/wZV7p1vM/google-icon.png" alt="Google" className="w-5 h-5 object-contain" />
+              Continue with Google
+            </button>
+          )}
         </div>
       </div>
     </div>
