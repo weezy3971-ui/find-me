@@ -1,0 +1,8 @@
+{
+  "name": "Find Me - Missing Persons Portal",
+  "description": "A community-driven digital network for reporting and tracking missing persons with admin verification and real-time mapping.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ]
+}
